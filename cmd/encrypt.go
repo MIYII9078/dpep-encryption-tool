@@ -46,6 +46,9 @@ func init() {
 }
 
 func runEncrypt(cmd *cobra.Command, args []string) error {
+	_ = cmd
+	_ = args
+
 	if encFile == "" {
 		return fmt.Errorf(i18n.T("MSG_INPUT_EMPTY"))
 	}

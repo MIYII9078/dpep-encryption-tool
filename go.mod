@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/spf13/cobra v1.8.0
-	golang.org/x/crypto v0.24.0
+	golang.org/x/crypto v0.53.0
 )
 
 require (

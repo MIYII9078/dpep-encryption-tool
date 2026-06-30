@@ -34,7 +34,6 @@ func applyForwardOps(data []byte, chain []byte, masterKey []byte) ([]byte, error
 		case 0x0A:
 			// varint (placeholder)
 		case 0x0E, 0x11:
-			// key derivation handled externally, skip parameter
 			if op == 0x0E {
 				i++
 			}
@@ -49,7 +48,6 @@ func applyForwardOps(data []byte, chain []byte, masterKey []byte) ([]byte, error
 			encoded := BaseEncode(current, base)
 			current = []byte(encoded)
 		case 0x12:
-			// Chaos: 读取 rounds 和 seed 参数但不使用（密钥由主密钥派生）
 			if i+2 > len(chain) {
 				return nil, fmt.Errorf("truncated chaos")
 			}
@@ -64,14 +62,12 @@ func applyForwardOps(data []byte, chain []byte, masterKey []byte) ([]byte, error
 			i += seedLen
 
 			chaosKey := deriveOpKey(masterKey, "chaos-v2", 32)
-			// 默认使用 3 轮（可由将来设计改进）
 			current = ChaosEncrypt(current, chaosKey, 3)
 		case 0x13:
-			// Poseidon: 读取 rounds 和 sbox 参数但不使用
 			if i+2 > len(chain) {
 				return nil, fmt.Errorf("truncated poseidon")
 			}
-			_ = int(chain[i]) // rounds (固定10)
+			_ = int(chain[i]) // rounds
 			i++
 			_ = chain[i] // sbox selector
 			i++
@@ -162,7 +158,6 @@ func applyReverseOps(data []byte, chain []byte, masterKey []byte) ([]byte, error
 			}
 			current = decoded
 		case 0x12:
-			// 参数解析但未使用（密钥由主密钥派生）
 			_ = int(op.args[0]) // rounds
 			_ = int(op.args[1]) // seedLen
 			_ = op.args[2:]     // seed
@@ -170,7 +165,6 @@ func applyReverseOps(data []byte, chain []byte, masterKey []byte) ([]byte, error
 			chaosKey := deriveOpKey(masterKey, "chaos-v2", 32)
 			current = ChaosDecrypt(current, chaosKey, 3)
 		case 0x13:
-			// 参数忽略
 			_ = op.args[0] // rounds
 			_ = op.args[1] // sbox
 

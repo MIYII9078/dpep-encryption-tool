@@ -24,6 +24,7 @@ func DeriveKeyFromPassword(password string, salt []byte) ([]byte, error) {
 	return pbkdf2.Key([]byte(password), salt, PBKDF2Iterations, 32, sha256.New), nil
 }
 
+// DeriveKeyFromKeyFile 从 32 字节高熵密钥文件直接获取主密钥。
 func DeriveKeyFromKeyFile(keyfile []byte) ([]byte, error) {
 	if len(keyfile) != 32 {
 		return nil, fmt.Errorf("key file must be 32 bytes")

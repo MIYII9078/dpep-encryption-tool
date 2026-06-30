@@ -19,6 +19,7 @@ func DeflateCompress(data []byte, level int) ([]byte, error) {
 		return nil, err
 	}
 	if _, err := w.Write(data); err != nil {
+		w.Close()
 		return nil, err
 	}
 	if err := w.Close(); err != nil {
@@ -36,7 +37,11 @@ func DeflateDecompress(data []byte) ([]byte, error) {
 	limitedReader := io.LimitReader(reader, limit+1)
 	output, err := io.ReadAll(limitedReader)
 	if err != nil {
+		reader.Close()
 		return nil, fmt.Errorf("decryption failed: invalid key or corrupted data")
+	}
+	if err := reader.Close(); err != nil {
+		return nil, fmt.Errorf("decompression close error: %w", err)
 	}
 	if int64(len(output)) > limit {
 		return nil, fmt.Errorf("decryption failed: invalid key or corrupted data")

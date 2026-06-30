@@ -50,11 +50,27 @@ CONFIRM_OVERWRITE = 文件 {path} 已存在，是否覆盖？(y/n):
 CONFIRM_EXIT = 确定要退出程序吗？(y/n):
 
 MENU_TITLE = ========== DPEP 主菜单 ==========
-MENU_OPTION_ENCRYPT = 1. 加密
-MENU_OPTION_DECRYPT = 2. 解密
-MENU_OPTION_EXIT = 3. 退出
+MENU_OPTION_ENCRYPT = 加密
+MENU_OPTION_DECRYPT = 解密
+MENU_OPTION_EXIT = 退出
 MENU_PROMPT = 请输入选项数字:
 MENU_EXIT_MSG = 感谢使用 DPEP，再见！
+
+ENCRYPT_SOURCE_FILE = 从文件读取
+ENCRYPT_SOURCE_TEXT = 直接输入文本
+ENCRYPT_SOURCE_OK = 明文已就绪
+ENCRYPT_OUTPUT_FILE = 输出文件设置
+ENCRYPT_KEY_METHOD = 设置密钥
+ENCRYPT_KEY_OK = 密钥已设置
+ENCRYPT_CHAIN_CONFIG = 配置操作链
+ENCRYPT_CHAIN_OK = 操作链已确认
+ENCRYPT_SPLIT_MODE = 分离模式设置
+ENCRYPT_SUCCESS_SPLIT = 分离模式加密完成！头部: {header}，数据: {data}
+DECRYPT_INPUT_OK = 密文已就绪
+DECRYPT_OUTPUT_FILE = 保存到文件
+DECRYPT_OUTPUT_SCREEN = 仅显示在屏幕
+DECRYPT_SCREEN_PREVIEW = 解密内容（未保存）
+DECRYPT_SPLIT_PROMPT = 输入 y 启用分离模式，否则直接回车:
 
 HELP_TEXT =
     {app_name} {version} — {app_full_name}
