@@ -1,0 +1,105 @@
+APP_NAME = DPEP
+APP_FULL_NAME = DPEP V1.1 Dynamic Programmable Encryption Protocol
+APP_VERSION = Version 1.1
+APP_DESCRIPTION = A highly customizable file encryption tool
+
+ROOT_USAGE = dpep <command> [options]
+ROOT_SHORT_DESC = DPEP is a self-describing, composable encryption framework
+ROOT_LONG_DESC =
+    Welcome to DPEP!
+    You can combine different opcodes (compression, obfuscation, AES encryption) to build your own encryption pipeline.
+    Use the encrypt or decrypt subcommands.
+
+ENCRYPT_SHORT_DESC = Encrypt a file or stdin
+ENCRYPT_LONG_DESC =
+    Apply compression/obfuscation according to the opcode chain and encrypt using AES-256-GCM.
+    Supports password mode, key file mode, and split header mode.
+
+ENCRYPT_PROMPT_INPUT = Enter the path of the file to encrypt:
+ENCRYPT_PROMPT_OUTPUT = Enter the output file path (leave empty to auto-generate):
+ENCRYPT_PROMPT_PASSWORD = Enter password (leave empty for key file mode):
+ENCRYPT_PROMPT_KEYFILE = Enter path to 32-byte key file (mutually exclusive with password):
+ENCRYPT_PROMPT_CHAIN = Enter opcode chain (hex, space-separated, Enter for default):
+ENCRYPT_PROMPT_SPLIT = Enable split header mode? (y/n):
+ENCRYPT_PROMPT_HEADER = Enter header file path (split mode):
+ENCRYPT_PROMPT_DATA = Enter data file path (split mode):
+
+ENCRYPT_SUCCESS = [Success] Encryption completed! Output: {output}
+ENCRYPT_FAILED = [Error] Encryption failed: {reason}
+
+DECRYPT_SHORT_DESC = Decrypt a file
+DECRYPT_LONG_DESC =
+    Automatically detect single-file or split mode and restore original data.
+
+DECRYPT_PROMPT_INPUT = Enter the path of the file to decrypt:
+DECRYPT_PROMPT_OUTPUT = Enter the output file path (leave empty to auto-generate):
+DECRYPT_PROMPT_PASSWORD = Enter password (leave empty for key file mode):
+DECRYPT_PROMPT_HEADER = Enter header file path (split mode):
+DECRYPT_PROMPT_DATA = Enter data file path (split mode):
+
+DECRYPT_SUCCESS = [Success] Decryption completed! Output: {output}
+DECRYPT_FAILED = [Error] Decryption failed: {reason}
+DECRYPT_BAD_TAG = [Error] Wrong password or corrupted data.
+
+MSG_INVALID_OPTION = Invalid option, please enter 1, 2 or 3.
+MSG_INPUT_EMPTY = Input cannot be empty. Please try again.
+MSG_FILE_NOT_FOUND = File not found: {path}
+MSG_OPERATION_CANCEL = Operation cancelled.
+
+CONFIRM_OVERWRITE = File {path} already exists. Overwrite? (y/n):
+CONFIRM_EXIT = Are you sure you want to exit? (y/n):
+
+MENU_TITLE = ========== DPEP Main Menu ==========
+MENU_OPTION_ENCRYPT = 1. Encrypt
+MENU_OPTION_DECRYPT = 2. Decrypt
+MENU_OPTION_EXIT = 3. Exit
+MENU_PROMPT = Enter option number:
+MENU_EXIT_MSG = Thank you for using DPEP, goodbye!
+
+HELP_TEXT =
+    {app_name} {version} — {app_full_name}
+
+    Usage:
+      {app_name} <command> [options]
+
+    Commands:
+      encrypt, e     Encrypt a file or stdin
+      decrypt, d     Decrypt a file
+      templates, tpl List all templates
+      help, h        Show this help
+
+    Global options:
+      -h, --help     Show help
+      -v, --verbose  Verbose output
+
+    Encrypt/decrypt options:
+      -f, --file <path>        Input file path (required)
+      -o, --output <path>      Output file path (auto-generated if empty)
+      -k, --key <password>     Password (mutually exclusive with --keyfile)
+      -K, --keyfile <path>     32-byte key file (mutually exclusive with --key)
+      -p, --process <chain>    Opcode chain (hex space-separated)
+      -t, --template <ID>      Template ID (from templates.json)
+      --template-file <path>   Custom template JSON file
+
+    Split mode options:
+      -s, --split              Enable split mode (.hdr + .dat)
+      -H, --header <path>      Header file path (default header.hdr)
+      -D, --data <path>        Data file path (default data.dat)
+
+    Example chains:
+      -p "08 06 0E 01 0F 00"    Standard password encryption
+      -p "10 0A 11 00"          Compression + key file encryption
+      -t 01                     Use predefined template
+
+    Templates format (templates.json):
+      {
+        "01": "08 06 0E 01 0F 00",
+        "02": "10 0A 11 00"
+      }
+
+    Examples:
+      {app_name} encrypt -f my.txt -k 123456 -p "08 06 0E 01 0F 00"
+      {app_name} decrypt -f my.bin -o out.txt -k 123456
+      {app_name} templates
+
+    See README for more.
