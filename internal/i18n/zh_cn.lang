@@ -1,0 +1,105 @@
+APP_NAME = DPEP
+APP_FULL_NAME = DPEP V1.1 动态可编程加密协议
+APP_VERSION = Version 1.1
+APP_DESCRIPTION = 一个高度可定制的文件加密工具
+
+ROOT_USAGE = dpep <command> [选项]
+ROOT_SHORT_DESC = DPEP 是一个自描述、可组合的加密框架
+ROOT_LONG_DESC =
+    欢迎使用 DPEP！
+    你可以通过组合不同的操作码（如压缩、混淆、AES加密）来构建自己的加密流程。
+    请使用子命令 encrypt 或 decrypt 进行操作。
+
+ENCRYPT_SHORT_DESC = 加密文件或标准输入
+ENCRYPT_LONG_DESC =
+    根据指定的操作码链对数据进行压缩/混淆，并使用 AES-256-GCM 进行加密。
+    支持密码模式、密钥文件模式和头部分离模式。
+
+ENCRYPT_PROMPT_INPUT = 请输入要加密的文件路径:
+ENCRYPT_PROMPT_OUTPUT = 请输入输出文件路径（留空则自动生成）:
+ENCRYPT_PROMPT_PASSWORD = 请输入加密密码（密钥文件模式请留空）:
+ENCRYPT_PROMPT_KEYFILE = 请输入 32 字节密钥文件路径（与密码互斥）:
+ENCRYPT_PROMPT_CHAIN = 请输入操作码链（十六进制，空格分隔，回车使用默认）:
+ENCRYPT_PROMPT_SPLIT = 是否启用头部分离模式？(y/n):
+ENCRYPT_PROMPT_HEADER = 请输入头部文件保存路径（分离模式）:
+ENCRYPT_PROMPT_DATA = 请输入数据文件保存路径（分离模式）:
+
+ENCRYPT_SUCCESS = [成功] DPEP 加密完成！输出文件: {output}
+ENCRYPT_FAILED = [错误] DPEP 加密失败：{reason}
+
+DECRYPT_SHORT_DESC = 解密文件
+DECRYPT_LONG_DESC =
+    自动识别单文件模式或头部分离模式，解密并还原原始数据。
+
+DECRYPT_PROMPT_INPUT = 请输入要解密的文件路径:
+DECRYPT_PROMPT_OUTPUT = 请输入输出文件路径（留空则自动生成）:
+DECRYPT_PROMPT_PASSWORD = 请输入解密密码（密钥文件模式请留空）:
+DECRYPT_PROMPT_HEADER = 请输入头部文件路径（分离模式）:
+DECRYPT_PROMPT_DATA = 请输入数据文件路径（分离模式）:
+
+DECRYPT_SUCCESS = [成功] DPEP 解密完成！输出文件: {output}
+DECRYPT_FAILED = [错误] DPEP 解密失败：{reason}
+DECRYPT_BAD_TAG = [错误] 密码错误或数据损坏，解密无法继续。
+
+MSG_INVALID_OPTION = 无效选项，请输入 1、2 或 3。
+MSG_INPUT_EMPTY = 输入不能为空，请重新输入。
+MSG_FILE_NOT_FOUND = 文件未找到：{path}
+MSG_OPERATION_CANCEL = 操作已取消。
+
+CONFIRM_OVERWRITE = 文件 {path} 已存在，是否覆盖？(y/n):
+CONFIRM_EXIT = 确定要退出程序吗？(y/n):
+
+MENU_TITLE = ========== DPEP 主菜单 ==========
+MENU_OPTION_ENCRYPT = 1. 加密
+MENU_OPTION_DECRYPT = 2. 解密
+MENU_OPTION_EXIT = 3. 退出
+MENU_PROMPT = 请输入选项数字:
+MENU_EXIT_MSG = 感谢使用 DPEP，再见！
+
+HELP_TEXT =
+    {app_name} {version} — {app_full_name}
+
+    用法:
+      {app_name} <command> [选项]
+
+    可用命令:
+      encrypt, e     加密文件或标准输入
+      decrypt, d     解密文件
+      templates, tpl 列出所有可用模板
+      help, h        显示此帮助信息
+
+    全局选项:
+      -h, --help     显示此帮助信息
+      -v, --verbose  显示详细执行日志
+
+    加密/解密选项:
+      -f, --file <路径>       输入文件路径（必填）
+      -o, --output <路径>     输出文件路径（未指定则自动生成）
+      -k, --key <密码>        加密/解密密码（与 --keyfile 互斥）
+      -K, --keyfile <路径>    32字节密钥文件（与 --key 互斥）
+      -p, --process <链>      操作码序列（如 "08 06 0E 01 0F 00"）
+      -t, --template <ID>     模板ID（从 templates.json 加载）
+      --template-file <路径>  自定义模板JSON文件
+
+    头部分离模式选项:
+      -s, --split             启用头部分离（生成 .hdr + .dat）
+      -H, --header <路径>     头部文件路径（默认 header.hdr）
+      -D, --data <路径>       数据文件路径（默认 data.dat）
+
+    操作码链示例:
+      -p "08 06 0E 01 0F 00"    标准密码加密（压缩+PBKDF2+AES）
+      -p "10 0A 11 00"          数字压缩 + 密钥文件加密
+      -t 01                     使用预定义模板
+
+    模板文件 (templates.json) 格式:
+      {
+        "01": "08 06 0E 01 0F 00",
+        "02": "10 0A 11 00"
+      }
+
+    示例:
+      {app_name} encrypt -f my.txt -k 123456 -p "08 06 0E 01 0F 00"
+      {app_name} decrypt -f my.bin -o out.txt -k 123456
+      {app_name} templates
+
+    更多信息请参阅 README。
