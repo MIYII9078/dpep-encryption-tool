@@ -39,6 +39,9 @@ func init() {
 }
 
 func runDecrypt(cmd *cobra.Command, args []string) error {
+	_ = cmd
+	_ = args
+
 	if decSplit {
 		if decHeader == "" || decData == "" {
 			return fmt.Errorf("split mode requires -H and -D")
@@ -75,7 +78,6 @@ func runDecrypt(cmd *cobra.Command, args []string) error {
 		plaintext, err = crypto.Decrypt(cipherData, decKey, keyFileData, "", "")
 	}
 	if err != nil {
-		// Unified error to prevent oracle
 		return fmt.Errorf(i18n.T("DECRYPT_FAILED", map[string]string{"reason": i18n.T("DECRYPT_BAD_TAG")}))
 	}
 

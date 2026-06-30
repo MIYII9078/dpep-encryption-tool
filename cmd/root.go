@@ -29,7 +29,7 @@ func init() {
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		_, _ = fmt.Fprintln(os.Stderr, err) // 忽略两个返回值
 		os.Exit(1)
 	}
 }

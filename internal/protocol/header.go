@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 )
@@ -12,7 +13,7 @@ const (
 	ModePassword    = 1 << 0
 	ModeKeyFile     = 1 << 1
 	ModeMultiFactor = 1 << 2
-	ModeStream      = 1 << 3
+	ModeStream      = 1 << 3 // 预留，流式模式待实现
 )
 
 type Header struct {
@@ -93,7 +94,7 @@ func (h *Header) EncodeSplit(datPath string) ([]byte, error) {
 	defer f.Close()
 	hasher := sha256.New()
 	if _, err := io.Copy(hasher, f); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("hash .dat file: %w", err)
 	}
 	h.SHA256Dat = hasher.Sum(nil)
 

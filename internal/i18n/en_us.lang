@@ -27,6 +27,21 @@ ENCRYPT_PROMPT_DATA = Enter data file path (split mode):
 ENCRYPT_SUCCESS = [Success] Encryption completed! Output: {output}
 ENCRYPT_FAILED = [Error] Encryption failed: {reason}
 
+ENCRYPT_SOURCE_CHOICE = Choose plaintext source:
+ENCRYPT_SOURCE_PROMPT = 1. From file  2. Direct input (default 1):
+ENCRYPT_TEXT_INPUT = Enter the text to encrypt (multiline, end with blank line):
+ENCRYPT_TEXT_INPUT_END = (After entering text, press Enter, then another Enter to finish)
+ENCRYPT_SOURCE_FILE = From file
+ENCRYPT_SOURCE_TEXT = Direct text input
+ENCRYPT_SOURCE_OK = Plaintext ready
+ENCRYPT_OUTPUT_FILE = Output file setting
+ENCRYPT_KEY_METHOD = Set encryption key
+ENCRYPT_KEY_OK = Key set
+ENCRYPT_CHAIN_CONFIG = Configure opcode chain
+ENCRYPT_CHAIN_OK = Opcode chain confirmed
+ENCRYPT_SPLIT_MODE = Split mode setting
+ENCRYPT_SUCCESS_SPLIT = Split mode encryption completed! Header: {header}, Data: {data}
+
 DECRYPT_SHORT_DESC = Decrypt a file
 DECRYPT_LONG_DESC =
     Automatically detect single-file or split mode and restore original data.
@@ -41,18 +56,28 @@ DECRYPT_SUCCESS = [Success] Decryption completed! Output: {output}
 DECRYPT_FAILED = [Error] Decryption failed: {reason}
 DECRYPT_BAD_TAG = [Error] Wrong password or corrupted data.
 
+DECRYPT_SPLIT_QUERY = Split mode decryption?
+DECRYPT_SPLIT_PROMPT = Enter y to enable split mode, or press Enter directly:
+DECRYPT_INPUT_OK = Ciphertext ready
+DECRYPT_OUTPUT_CHOICE = Output method: 1.Save to file  2.Display on screen (default 1):
+DECRYPT_OUTPUT_FILE = Save to file
+DECRYPT_OUTPUT_SCREEN = Display on screen only
+DECRYPT_SCREEN_PREVIEW = Decrypted content (not saved)
+DECRYPT_PLAINTEXT_PREVIEW = Decrypted content preview (not saved)
+
 MSG_INVALID_OPTION = Invalid option, please enter 1, 2 or 3.
 MSG_INPUT_EMPTY = Input cannot be empty. Please try again.
 MSG_FILE_NOT_FOUND = File not found: {path}
 MSG_OPERATION_CANCEL = Operation cancelled.
+MSG_VERBOSE_HELP = Enable verbose output
 
 CONFIRM_OVERWRITE = File {path} already exists. Overwrite? (y/n):
 CONFIRM_EXIT = Are you sure you want to exit? (y/n):
 
 MENU_TITLE = ========== DPEP Main Menu ==========
-MENU_OPTION_ENCRYPT = 1. Encrypt
-MENU_OPTION_DECRYPT = 2. Decrypt
-MENU_OPTION_EXIT = 3. Exit
+MENU_OPTION_ENCRYPT = Encrypt
+MENU_OPTION_DECRYPT = Decrypt
+MENU_OPTION_EXIT = Exit
 MENU_PROMPT = Enter option number:
 MENU_EXIT_MSG = Thank you for using DPEP, goodbye!
 
@@ -65,7 +90,7 @@ HELP_TEXT =
     Commands:
       encrypt, e     Encrypt a file or stdin
       decrypt, d     Decrypt a file
-      templates, tpl List all templates
+      templates, tpl List all available templates
       help, h        Show this help
 
     Global options:
