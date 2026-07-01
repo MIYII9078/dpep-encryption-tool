@@ -3,7 +3,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat&logo=go" alt="Go Version"/>
   <img src="https://img.shields.io/badge/version-1.1_Pre--1-brightgreen" alt="Version"/>
-  <img src="https://img.shields.io/badge/license-Apache-2.0-blue" alt="License"/>
+  <img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="License"/>
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey" alt="Platform"/>
 </p>
 
