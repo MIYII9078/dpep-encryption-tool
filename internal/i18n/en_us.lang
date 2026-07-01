@@ -81,6 +81,11 @@ MENU_OPTION_EXIT = Exit
 MENU_PROMPT = Enter option number:
 MENU_EXIT_MSG = Thank you for using DPEP, goodbye!
 
+KEYFILE_COLLECT_ENTROPY = Generate key file – Please type random characters, end with a blank line.
+KEYFILE_INSTRUCTIONS = The more characters you enter, the stronger the randomness. Press Enter twice to finish.
+KEYFILE_ENTROPY_TOO_SHORT = Input too short, please enter more random characters.
+KEYFILE_SUCCESS = Key file generated: %s
+
 HELP_TEXT =
     {app_name} {version} — {app_full_name}
 
