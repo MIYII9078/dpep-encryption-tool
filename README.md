@@ -24,7 +24,8 @@
 
 ## 📸 快速预览
 
-> TODO：此处可插入一张 GUI 操作截图（encrypt 选项卡），展示可视化构建操作链、文件上传、熵收集面板等。
+<img width="1921" height="881" alt="Img20260701141321024" src="https://github.com/user-attachments/assets/6e209b91-2175-4bbf-b7a1-b4e84fc77992" />
+
 
 ---
 
