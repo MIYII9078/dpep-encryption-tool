@@ -1,10 +1,9 @@
 package crypto
 
 import (
+	"crypto/hmac"
 	"crypto/sha256"
-	"io"
-
-	"golang.org/x/crypto/hkdf"
+	"encoding/binary"
 )
 
 func ChaosEncrypt(plaintext, seed []byte, rounds int) []byte {
@@ -36,18 +35,32 @@ func ChaosDecrypt(ciphertext, seed []byte, rounds int) []byte {
 	return data
 }
 
+// deriveChaosKeyStream 使用 HMAC-SHA256 计数器模式生成指定长度的密钥流，无长度限制。
 func deriveChaosKeyStream(seed []byte, round int, length int) []byte {
-	info := []byte{byte(round)}
-	reader := hkdf.Expand(sha256.New, seed, info)
-	stream := make([]byte, length)
-	_, err := io.ReadFull(reader, stream)
-	if err != nil {
-		panic(err)
+	mac := hmac.New(sha256.New, seed)
+	var counter [4]byte
+	binary.BigEndian.PutUint32(counter[:], uint32(round))
+
+	var stream []byte
+	block := make([]byte, sha256.Size)
+	for len(stream) < length {
+		mac.Reset()
+		mac.Write(counter[:])
+		mac.Write([]byte("chaos"))
+		block = mac.Sum(block[:0])
+		stream = append(stream, block...)
+		// 递增计数器
+		for i := 3; i >= 0; i-- {
+			counter[i]++
+			if counter[i] != 0 {
+				break
+			}
+		}
 	}
-	return stream
+	return stream[:length]
 }
 
-// 使用 AES S 盒（安全、公开、已广泛分析）
+// AES S 盒（与 poseidon.go 相同）
 var chaosSbox = [256]byte{
 	0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
 	0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
@@ -67,7 +80,6 @@ var chaosSbox = [256]byte{
 	0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16,
 }
 
-// AES 逆 S 盒，保证置换可逆
 var chaosInvSbox = [256]byte{
 	0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,
 	0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb,
@@ -88,7 +100,6 @@ var chaosInvSbox = [256]byte{
 }
 
 func chaosPermute(data []byte) {
-	// 先 S 盒替换，再循环左移一位
 	for i := range data {
 		data[i] = chaosSbox[data[i]]
 	}
@@ -100,7 +111,6 @@ func chaosPermute(data []byte) {
 }
 
 func chaosInvPermute(data []byte) {
-	// 先循环右移一位，再逆 S 盒替换
 	if len(data) > 0 {
 		last := data[len(data)-1]
 		copy(data[1:], data[0:len(data)-1])
