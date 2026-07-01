@@ -56,6 +56,11 @@ MENU_OPTION_EXIT = 退出
 MENU_PROMPT = 请输入选项数字:
 MENU_EXIT_MSG = 感谢使用 DPEP，再见！
 
+KEYFILE_COLLECT_ENTROPY = 生成密钥文件 - 请随意敲击键盘输入字符，空行结束。
+KEYFILE_INSTRUCTIONS = 输入越多字符，随机性越强。完成后请按两次回车。
+KEYFILE_ENTROPY_TOO_SHORT = 输入过短，请多输入一些随机字符。
+KEYFILE_SUCCESS = 密钥文件已生成：%s
+
 ENCRYPT_SOURCE_FILE = 从文件读取
 ENCRYPT_SOURCE_TEXT = 直接输入文本
 ENCRYPT_SOURCE_OK = 明文已就绪
