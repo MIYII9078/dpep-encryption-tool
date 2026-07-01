@@ -6,28 +6,28 @@ import (
 	"encoding/binary"
 )
 
-func ChaosEncrypt(plaintext, seed []byte, rounds int) []byte {
+func ScrambleXOREncrypt(plaintext, seed []byte, rounds int) []byte {
 	if len(seed) < 32 {
-		panic("chaos seed too short")
+		panic("scrambler seed too short")
 	}
 	data := make([]byte, len(plaintext))
 	copy(data, plaintext)
 	for r := 0; r < rounds; r++ {
-		keystream := deriveChaosKeyStream(seed, r, len(data))
+		keystream := deriveScramblerKeyStream(seed, r, len(data))
 		for i := range data {
 			data[i] ^= keystream[i]
 		}
-		chaosPermute(data)
+		scramblePermute(data)
 	}
 	return data
 }
 
-func ChaosDecrypt(ciphertext, seed []byte, rounds int) []byte {
+func ScrambleXORDecrypt(ciphertext, seed []byte, rounds int) []byte {
 	data := make([]byte, len(ciphertext))
 	copy(data, ciphertext)
 	for r := rounds - 1; r >= 0; r-- {
-		chaosInvPermute(data)
-		keystream := deriveChaosKeyStream(seed, r, len(data))
+		scrambleInvPermute(data)
+		keystream := deriveScramblerKeyStream(seed, r, len(data))
 		for i := range data {
 			data[i] ^= keystream[i]
 		}
@@ -35,8 +35,7 @@ func ChaosDecrypt(ciphertext, seed []byte, rounds int) []byte {
 	return data
 }
 
-// deriveChaosKeyStream 使用 HMAC-SHA256 计数器模式生成指定长度的密钥流，无长度限制。
-func deriveChaosKeyStream(seed []byte, round int, length int) []byte {
+func deriveScramblerKeyStream(seed []byte, round int, length int) []byte {
 	mac := hmac.New(sha256.New, seed)
 	var counter [4]byte
 	binary.BigEndian.PutUint32(counter[:], uint32(round))
@@ -46,10 +45,9 @@ func deriveChaosKeyStream(seed []byte, round int, length int) []byte {
 	for len(stream) < length {
 		mac.Reset()
 		mac.Write(counter[:])
-		mac.Write([]byte("chaos"))
+		mac.Write([]byte("scrambler"))
 		block = mac.Sum(block[:0])
 		stream = append(stream, block...)
-		// 递增计数器
 		for i := 3; i >= 0; i-- {
 			counter[i]++
 			if counter[i] != 0 {
@@ -60,8 +58,7 @@ func deriveChaosKeyStream(seed []byte, round int, length int) []byte {
 	return stream[:length]
 }
 
-// AES S 盒（与 poseidon.go 相同）
-var chaosSbox = [256]byte{
+var scramblerSbox = [256]byte{
 	0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
 	0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
 	0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15,
@@ -80,7 +77,7 @@ var chaosSbox = [256]byte{
 	0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16,
 }
 
-var chaosInvSbox = [256]byte{
+var scramblerInvSbox = [256]byte{
 	0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,
 	0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb,
 	0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e,
@@ -99,9 +96,9 @@ var chaosInvSbox = [256]byte{
 	0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d,
 }
 
-func chaosPermute(data []byte) {
+func scramblePermute(data []byte) {
 	for i := range data {
-		data[i] = chaosSbox[data[i]]
+		data[i] = scramblerSbox[data[i]]
 	}
 	if len(data) > 0 {
 		first := data[0]
@@ -110,13 +107,13 @@ func chaosPermute(data []byte) {
 	}
 }
 
-func chaosInvPermute(data []byte) {
+func scrambleInvPermute(data []byte) {
 	if len(data) > 0 {
 		last := data[len(data)-1]
 		copy(data[1:], data[0:len(data)-1])
 		data[0] = last
 	}
 	for i := range data {
-		data[i] = chaosInvSbox[data[i]]
+		data[i] = scramblerInvSbox[data[i]]
 	}
 }

@@ -92,8 +92,8 @@ const htmlTemplate = `<!DOCTYPE html>
             <h3>操作链配置</h3>
             <div class="form-group"><label>密钥方式</label><select id="chain-key" disabled><option value="0E 01">密码 PBKDF2</option><option value="11">密钥文件</option></select></div>
             <div class="form-group"><label>压缩</label><select id="chain-compress"><option value="">不压缩</option><option value="08 06">Deflate 6</option><option value="08 09">Deflate 9</option></select></div>
-            <div class="form-group"><label>混沌混淆</label><select id="chain-chaos"><option value="">不添加</option><option value="12 03 20">3轮</option><option value="12 05 20">5轮</option></select></div>
-            <div class="form-group"><label>波塞冬加密</label><select id="chain-poseidon"><option value="">不添加</option><option value="13 0A 00">10轮</option></select></div>
+            <div class="form-group"><label>ScrambleXOR</label><select id="chain-chaos"><option value="">不添加</option><option value="12 03 20">3轮</option><option value="12 05 20">5轮</option></select></div>
+            <div class="form-group"><label>AESCipher</label><select id="chain-poseidon"><option value="">不添加</option><option value="13 0A 00">10轮</option></select></div>
             <div class="form-group"><label>数字编码</label><select id="chain-encode"><option value="">无</option><option value="10 0A">Base10</option><option value="10 24">Base36</option><option value="10 3E">Base62</option></select></div>
             <div class="form-group"><label>分离模式</label><input type="checkbox" id="enc-split"><span>生成 .hdr + .dat</span></div>
             <button onclick="buildChain()">生成链</button> <span id="chain-preview"></span>
