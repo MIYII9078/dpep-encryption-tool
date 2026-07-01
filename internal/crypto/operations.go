@@ -49,34 +49,34 @@ func applyForwardOps(data []byte, chain []byte, masterKey []byte) ([]byte, error
 			current = []byte(encoded)
 		case 0x12:
 			if i+2 > len(chain) {
-				return nil, fmt.Errorf("truncated chaos")
+				return nil, fmt.Errorf("truncated scrambler")
 			}
 			_ = int(chain[i]) // rounds
 			i++
 			seedLen := int(chain[i])
 			i++
 			if i+seedLen > len(chain) {
-				return nil, fmt.Errorf("truncated chaos seed")
+				return nil, fmt.Errorf("truncated scrambler seed")
 			}
 			_ = chain[i : i+seedLen] // seed
 			i += seedLen
 
-			chaosKey := deriveOpKey(masterKey, "chaos-v2", 32)
-			current = ChaosEncrypt(current, chaosKey, 3)
+			scramblerKey := deriveOpKey(masterKey, "scrambler", 32)
+			current = ScrambleXOREncrypt(current, scramblerKey, 3)
 		case 0x13:
 			if i+2 > len(chain) {
-				return nil, fmt.Errorf("truncated poseidon")
+				return nil, fmt.Errorf("truncated AESCipher")
 			}
 			_ = int(chain[i]) // rounds
 			i++
 			_ = chain[i] // sbox selector
 			i++
 
-			poseidonKey := deriveOpKey(masterKey, "poseidon", 16)
+			cipherKey := deriveOpKey(masterKey, "aescipher-v2", 16)
 			for j := 0; j+16 <= len(current); j += 16 {
 				block := make([]byte, 16)
 				copy(block, current[j:j+16])
-				encBlock := PoseidonEncrypt(block, poseidonKey)
+				encBlock := AESCipherEncrypt(block, cipherKey)
 				copy(current[j:j+16], encBlock)
 			}
 		default:
@@ -162,17 +162,17 @@ func applyReverseOps(data []byte, chain []byte, masterKey []byte) ([]byte, error
 			_ = int(op.args[1]) // seedLen
 			_ = op.args[2:]     // seed
 
-			chaosKey := deriveOpKey(masterKey, "chaos-v2", 32)
-			current = ChaosDecrypt(current, chaosKey, 3)
+			scramblerKey := deriveOpKey(masterKey, "scrambler", 32)
+			current = ScrambleXORDecrypt(current, scramblerKey, 3)
 		case 0x13:
 			_ = op.args[0] // rounds
 			_ = op.args[1] // sbox
 
-			poseidonKey := deriveOpKey(masterKey, "poseidon", 16)
+			cipherKey := deriveOpKey(masterKey, "aescipher-v2", 16)
 			for k := 0; k+16 <= len(current); k += 16 {
 				block := make([]byte, 16)
 				copy(block, current[k:k+16])
-				decBlock := PoseidonDecrypt(block, poseidonKey)
+				decBlock := AESCipherDecrypt(block, cipherKey)
 				copy(current[k:k+16], decBlock)
 			}
 		}
