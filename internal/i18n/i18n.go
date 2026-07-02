@@ -5,8 +5,6 @@ import (
 	"os"
 	"runtime"
 	"strings"
-	"syscall"
-	"unsafe"
 )
 
 //go:embed zh_cn.lang
@@ -19,54 +17,26 @@ var current map[string]string
 
 func init() {
 	lang := detectLanguage()
-	// 如果设置了 DPEP_DEBUG_LANG 环境变量，则打印检测到的语言（调试用）
-	if os.Getenv("DPEP_DEBUG_LANG") != "" {
-		println("DPEP detected language:", lang)
-	}
 	loadLang(lang)
 }
 
 func detectLanguage() string {
-	// 1. 用户强制指定
 	if l := os.Getenv("DPEP_LANG"); l != "" {
 		return l
 	}
-	// 2. 标准环境变量 (Linux/macOS)
 	if l := os.Getenv("LANG"); l != "" {
 		return l
 	}
 	if l := os.Getenv("LC_ALL"); l != "" {
 		return l
 	}
-	// 3. Windows 系统 API
 	if runtime.GOOS == "windows" {
 		locale, err := getWindowsLocale()
 		if err == nil && locale != "" {
 			return locale
 		}
 	}
-	// 4. 默认英文
 	return "en_US"
-}
-
-func getWindowsLocale() (string, error) {
-	// 使用 syscall.NewLazyDLL 加载 kernel32.dll 并获取函数
-	kernel32 := syscall.NewLazyDLL("kernel32.dll")
-	proc := kernel32.NewProc("GetUserDefaultLocaleName")
-
-	// 缓冲区大小：LOCALE_NAME_MAX_LENGTH = 85
-	buf := make([]uint16, 85)
-	ret, _, err := proc.Call(
-		uintptr(unsafe.Pointer(&buf[0])),
-		uintptr(len(buf)),
-	)
-	if ret == 0 {
-		if err != nil {
-			return "", err
-		}
-		return "", syscall.EINVAL
-	}
-	return syscall.UTF16ToString(buf), nil
 }
 
 func loadLang(lang string) {
