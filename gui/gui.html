@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DPEP 加密工具</title>
+    <style>
+        :root {
+            --bg: #f5f5f7;
+            --surface: #ffffff;
+            --primary: #007aff;
+            --text: #1d1d1f;
+            --subtext: #86868b;
+            --success: #58d877;
+            --error: #d44c44;
+            --border: #d2d2d7;
+            --radius: 12px;
+            --shadow: 0 4px 16px rgba(0,0,0,0.08);
+            --blur: blur(20px) saturate(180%);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 220px;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            padding: 30px 0;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar .logo {
+            padding: 0 20px 30px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 0.5px;
+        }
+        .sidebar button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            margin: 2px 10px;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            font-size: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .sidebar button:hover {
+            background: rgba(0,0,0,0.04);
+        }
+        .sidebar button.active {
+            background: var(--primary);
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,122,255,0.3);
+        }
+        .content {
+            flex: 1;
+            padding: 40px 50px;
+            overflow-y: auto;
+        }
+        .tab { display: none; }
+        .tab.active { display: block; }
+        h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--text);
+        }
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--subtext);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fafafa;
+            font-size: 15px;
+            color: var(--text);
+            transition: all 0.2s ease;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.15);
+            background: #fff;
+        }
+        .file-row {
+            display: flex;
+            gap: 10px;
+        }
+        .file-row input[type="text"] {
+            flex: 1;
+        }
+        .file-row input[type="file"] {
+            display: none;
+        }
+        button {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0,122,255,0.3);
+        }
+        button:hover {
+            background: #0070e9;
+            box-shadow: 0 4px 12px rgba(0,122,255,0.4);
+            transform: translateY(-1px);
+        }
+        button:active {
+            transform: scale(0.97);
+        }
+        .btn-secondary {
+            background: #e5e5ea;
+            color: var(--text);
+            box-shadow: none;
+        }
+        .btn-secondary:hover {
+            background: #d5d5da;
+        }
+        .chain-builder {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .chain-builder .form-group {
+            margin-bottom: 0;
+        }
+        .chain-builder select {
+            width: 100%;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            white-space: pre-wrap;
+            display: none;
+        }
+        .result.success {
+            background: rgba(52,199,89,0.1);
+            border: 1px solid var(--success);
+            color: #1d7a3f;
+        }
+        .result.error {
+            background: rgba(255,59,48,0.1);
+            border: 1px solid var(--error);
+            color: #c41e15;
+        }
+        .progress-bar {
+            height: 8px;
+            background: #e5e5ea;
+            border-radius: 4px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            background: linear-gradient(90deg, var(--error), var(--success));
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        #entropy-canvas {
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            width: 100%;
+            height: 160px;
+            cursor: crosshair;
+            margin: 12px 0;
+        }
+        .entropy-input {
+            margin-top: 8px;
+        }
+        @media (max-width: 768px) {
+            .sidebar { width: 80px; padding: 20px 0; }
+            .sidebar .logo { font-size: 0; padding: 0; }
+            .sidebar button { justify-content: center; padding: 10px; font-size: 0; }
+            .content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="logo">DPEP</div>
+    <button class="active" onclick="switchTab('encrypt')">🔒 加密</button>
+    <button onclick="switchTab('decrypt')">🔓 解密</button>
+</div>
+<div class="content">
+    <!-- 加密选项卡 -->
+    <div id="encrypt-tab" class="tab active">
+        <h2>文件加密</h2>
+        <div class="card">
+            <div class="form-group">
+                <label>输入文件</label>
+                <div class="file-row">
+                    <input id="enc-input" type="text" placeholder="选择文件或输入路径" readonly>
+                    <input id="enc-file" type="file" onchange="uploadFile('enc')">
+                    <button onclick="document.getElementById('enc-file').click()">浏览</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>输出文件</label>
+                <input id="enc-output" type="text" placeholder="留空自动生成">
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input id="enc-password" type="password" placeholder="推荐使用密码">
+            </div>
+            <div class="form-group">
+                <label>密钥文件（可选）</label>
+                <div class="file-row">
+                    <input id="enc-keyfile" type="text" placeholder="点击生成或上传" readonly>
+                    <button onclick="openEntropyPanel()">生成</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom:16px;">操作链配置</h3>
+            <div class="chain-builder">
+                <div class="form-group">
+                    <label>密钥方式</label>
+                    <select id="chain-key" disabled>
+                        <option value="0E 01">密码 PBKDF2</option>
+                        <option value="11">密钥文件</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>压缩</label>
+                    <select id="chain-compress">
+                        <option value="">不压缩</option>
+                        <option value="08 06">Deflate 6</option>
+                        <option value="08 09">Deflate 9</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ScrambleXOR</label>
+                    <select id="chain-chaos">
+                        <option value="">不添加</option>
+                        <option value="12 03 20">3轮</option>
+                        <option value="12 05 20">5轮</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>AESCipher</label>
+                    <select id="chain-poseidon">
+                        <option value="">不添加</option>
+                        <option value="13 0A 00">10轮</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>数字编码</label>
+                    <select id="chain-encode">
+                        <option value="">无</option>
+                        <option value="10 0A">Base10</option>
+                        <option value="10 24">Base36</option>
+                        <option value="10 3E">Base62</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+                    <label style="margin-bottom:0;">分离模式</label>
+                    <input type="checkbox" id="enc-split" style="width:18px; height:18px;">
+                </div>
+            </div>
+            <div style="margin-top:12px; display:flex; align-items:center; gap:12px;">
+                <button onclick="buildChain()">生成链</button>
+                <span id="chain-preview" style="font-size:13px; color:var(--subtext);"></span>
+            </div>
+        </div>
+
+        <button id="enc-start" onclick="startEncrypt()">开始加密</button>
+        <div id="enc-result" class="result"></div>
+    </div>
+
+    <!-- 解密选项卡 -->
+    <div id="decrypt-tab" class="tab">
+        <h2>文件解密</h2>
+        <div class="card">
+            <div class="form-group">
+                <label>密文文件</label>
+                <div class="file-row">
+                    <input id="dec-input" type="text" placeholder="选择文件或输入路径" readonly>
+                    <input id="dec-file" type="file" onchange="uploadFile('dec')">
+                    <button onclick="document.getElementById('dec-file').click()">浏览</button>
+                </div>
+            </div>
+            <div id="dec-split-inputs" style="display:none;">
+                <div class="form-group">
+                    <label>头部文件 (.hdr)</label>
+                    <div class="file-row">
+                        <input id="dec-header" type="text" placeholder="选择 .hdr 文件" readonly>
+                        <input id="dec-header-file" type="file" onchange="uploadHeaderFile()">
+                        <button onclick="document.getElementById('dec-header-file').click()">浏览</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>数据文件 (.dat)</label>
+                    <div class="file-row">
+                        <input id="dec-data" type="text" placeholder="选择 .dat 文件" readonly>
+                        <input id="dec-data-file" type="file" onchange="uploadDataFile()">
+                        <button onclick="document.getElementById('dec-data-file').click()">浏览</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>输出文件</label>
+                <input id="dec-output" type="text" placeholder="留空自动生成">
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input id="dec-password" type="password" placeholder="输入密码（密钥文件模式留空）">
+            </div>
+            <div class="form-group">
+                <label>密钥文件（可选）</label>
+                <div class="file-row">
+                    <input id="dec-keyfile" type="text" placeholder="上传或留空" readonly>
+                    <input id="dec-keyfile-file" type="file" onchange="uploadKeyFile('dec')">
+                    <button onclick="document.getElementById('dec-keyfile-file').click()">浏览</button>
+                </div>
+            </div>
+            <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+                <label style="margin-bottom:0;">分离模式</label>
+                <input type="checkbox" id="dec-split" onchange="toggleDecryptSplit()">
+            </div>
+        </div>
+        <button id="dec-start" onclick="startDecrypt()">开始解密</button>
+        <div id="dec-result" class="result"></div>
+    </div>
+
+    <!-- 熵收集模态框 -->
+    <div id="entropy-panel" class="modal-overlay">
+        <div class="modal">
+            <h3>生成随机密钥文件</h3>
+            <p style="color: var(--subtext); margin: 8px 0 16px;">在画布上移动鼠标，并随意敲击键盘，收集随机数据</p>
+            <canvas id="entropy-canvas" width="400" height="160"></canvas>
+            <div class="progress-bar"><div id="entropy-progress" class="progress-fill"></div></div>
+            <input type="text" id="entropy-keyboard" placeholder="敲击键盘..." onkeydown="collectKeyboardEntropy()" autocomplete="off" style="margin-top:8px;">
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                <button class="btn-secondary" onclick="closeEntropyPanel()">取消</button>
+                <button id="generate-key-btn" disabled onclick="generateKeyWithEntropy()">生成密钥</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const BASE = 'http://localhost:18080';
+    let currentChain = "0E 01 08 06 0F 00";
+    let entropyData = "";
+    const entropyThreshold = 200;
+    let collectActive = false;
+    let lastMouseTime = 0;
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+        document.getElementById(tab + '-tab').classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    function toggleDecryptSplit() {
+        const split = document.getElementById('dec-split').checked;
+        document.getElementById('dec-split-inputs').style.display = split ? 'block' : 'none';
+    }
+
+    function autoSelectKeyMode(mode) {
+        const keyfile = document.getElementById(mode + '-keyfile').value.trim();
+        document.getElementById('chain-key').value = keyfile ? '11' : '0E 01';
+        buildChain();
+    }
+
+    function buildChain() {
+        const parts = [];
+        parts.push(document.getElementById('chain-key').value);
+        const comp = document.getElementById('chain-compress').value;
+        if (comp) parts.push(comp);
+        const chaos = document.getElementById('chain-chaos').value;
+        if (chaos) {
+            const [a,b] = chaos.split(' ');
+            const seed = Array.from({length:32}, () => Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join(' ');
+            parts.push(a, b, '20', seed);
+        }
+        const pos = document.getElementById('chain-poseidon').value;
+        if (pos) parts.push(pos);
+        const enc = document.getElementById('chain-encode').value;
+        if (enc) parts.push(enc);
+        parts.push('0F', '00');
+        currentChain = parts.join(' ');
+        document.getElementById('chain-preview').textContent = '链: ' + currentChain;
+    }
+
+    function showResult(mode, msg, isError) {
+        const el = document.getElementById(mode + '-result');
+        el.style.display = 'block';
+        el.textContent = msg;
+        el.className = 'result ' + (isError ? 'error' : 'success');
+    }
+
+    async function uploadFile(mode) {
+        const file = document.getElementById(mode + '-file').files[0];
+        if (!file) return;
+        const fd = new FormData(); fd.append('file', file);
+        const resp = await fetch(BASE + '/api/upload', {method:'POST', body:fd});
+        const data = await resp.json();
+        if (data.path) document.getElementById(mode + '-input').value = data.path;
+    }
+
+    async function uploadHeaderFile() {
+        const file = document.getElementById('dec-header-file').files[0];
+        if (!file) return;
+        const fd = new FormData(); fd.append('file', file);
+        const resp = await fetch(BASE + '/api/upload', {method:'POST', body:fd});
+        const data = await resp.json();
+        if (data.path) document.getElementById('dec-header').value = data.path;
+    }
+
+    async function uploadDataFile() {
+        const file = document.getElementById('dec-data-file').files[0];
+        if (!file) return;
+        const fd = new FormData(); fd.append('file', file);
+        const resp = await fetch(BASE + '/api/upload', {method:'POST', body:fd});
+        const data = await resp.json();
+        if (data.path) document.getElementById('dec-data').value = data.path;
+    }
+
+    async function uploadKeyFile(mode) {
+        const file = document.getElementById(mode + '-keyfile-file').files[0];
+        if (!file) return;
+        const fd = new FormData(); fd.append('file', file);
+        const resp = await fetch(BASE + '/api/upload', {method:'POST', body:fd});
+        const data = await resp.json();
+        if (data.path) {
+            document.getElementById(mode + '-keyfile').value = data.path;
+            autoSelectKeyMode(mode);
+        }
+    }
+
+    async function startEncrypt() {
+        const input = document.getElementById('enc-input').value;
+        const output = document.getElementById('enc-output').value || input + '.dpep';
+        const password = document.getElementById('enc-password').value;
+        const keyfile = document.getElementById('enc-keyfile').value;
+        const split = document.getElementById('enc-split').checked;
+        autoSelectKeyMode('enc');
+        const body = {input, output, password, keyfile, chain:currentChain, split, header:output+'.hdr', data:output+'.dat'};
+        const btn = document.getElementById('enc-start'); btn.disabled = true;
+        try {
+            const resp = await fetch(BASE + '/api/encrypt', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+            const res = await resp.json();
+            showResult('enc', res.message || res.error, !!res.error);
+        } catch(e) { showResult('enc', '请求失败', true); }
+        btn.disabled = false;
+    }
+
+    async function startDecrypt() {
+        let input, header, data, output;
+        const split = document.getElementById('dec-split').checked;
+        if (split) {
+            header = document.getElementById('dec-header').value;
+            data = document.getElementById('dec-data').value;
+            output = document.getElementById('dec-output').value || header.replace('.hdr', '.decrypted');
+        } else {
+            input = document.getElementById('dec-input').value;
+            output = document.getElementById('dec-output').value || input.replace('.dpep', '.decrypted');
+        }
+        const password = document.getElementById('dec-password').value;
+        const keyfile = document.getElementById('dec-keyfile').value;
+        const body = {input: input || '', output, password, keyfile, chain:"", split, header: header || '', data: data || ''};
+        const btn = document.getElementById('dec-start'); btn.disabled = true;
+        try {
+            const resp = await fetch(BASE + '/api/decrypt', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+            const res = await resp.json();
+            showResult('dec', res.message || res.error, !!res.error);
+        } catch(e) { showResult('dec', '请求失败', true); }
+        btn.disabled = false;
+    }
+
+    // 熵收集
+    function openEntropyPanel() {
+        document.getElementById('entropy-panel').style.display = 'flex';
+        entropyData = ""; collectActive = true; lastMouseTime = 0;
+        updateEntropyProgress();
+        drawRandomCanvas();
+        document.getElementById('entropy-keyboard').value = '';
+        document.getElementById('generate-key-btn').disabled = true;
+        document.getElementById('entropy-canvas').addEventListener('mousemove', onMouseEntropy);
+        window.entropyInterval = setInterval(drawRandomCanvas, 3000);
+    }
+
+    function closeEntropyPanel() {
+        document.getElementById('entropy-panel').style.display = 'none';
+        collectActive = false;
+        document.getElementById('entropy-canvas').removeEventListener('mousemove', onMouseEntropy);
+        clearInterval(window.entropyInterval);
+    }
+
+    function drawRandomCanvas() {
+        const canvas = document.getElementById('entropy-canvas');
+        const ctx = canvas.getContext('2d');
+        const imgData = ctx.createImageData(canvas.width, canvas.height);
+        for (let i=0; i<imgData.data.length; i+=4) {
+            const v = Math.random() > 0.5 ? 255 : 0;
+            imgData.data[i]=v; imgData.data[i+1]=v; imgData.data[i+2]=v; imgData.data[i+3]=255;
+        }
+        ctx.putImageData(imgData,0,0);
+    }
+
+    function onMouseEntropy(e) {
+        if (!collectActive) return;
+        const now = Date.now();
+        if (now - lastMouseTime < 100) return;
+        lastMouseTime = now;
+        const rect = e.target.getBoundingClientRect();
+        entropyData += (e.clientX-rect.left) + ',' + (e.clientY-rect.top) + ';';
+        if (entropyData.length > entropyThreshold*2) entropyData = entropyData.slice(-entropyThreshold*2);
+        updateEntropyProgress();
+    }
+
+    function collectKeyboardEntropy() {
+        if (!collectActive) return;
+        const inp = document.getElementById('entropy-keyboard');
+        if (inp.value.length > 0) {
+            entropyData += inp.value[inp.value.length-1] + ';';
+            if (entropyData.length > entropyThreshold*2) entropyData = entropyData.slice(-entropyThreshold*2);
+            inp.value = '';
+            updateEntropyProgress();
+        }
+    }
+
+function updateEntropyProgress() {
+    const progress = Math.min(100, Math.floor((entropyData.length / entropyThreshold) * 100));
+    const fill = document.getElementById('entropy-progress');
+    fill.style.width = progress + '%';
+
+    // 颜色插值：从 #d44c44 到 #58d877
+    const t = progress / 100;
+    const r = Math.round(0xd4 + (0x58 - 0xd4) * t);
+    const g = Math.round(0x4c + (0xd8 - 0x4c) * t);
+    const b = Math.round(0x44 + (0x77 - 0x44) * t);
+    fill.style.background = 'rgb(' + r + ',' + g + ',' + b + ')';
+
+    document.getElementById('generate-key-btn').disabled = entropyData.length < entropyThreshold;
+}   
+
+    async function generateKeyWithEntropy() {
+        const btn = document.getElementById('generate-key-btn'); btn.disabled = true;
+        try {
+            const resp = await fetch(BASE + '/api/generate-keyfile', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({entropy: entropyData})
+            });
+            const data = await resp.json();
+            if (data.path) {
+                document.getElementById('enc-keyfile').value = data.path;
+                autoSelectKeyMode('enc');
+                closeEntropyPanel();
+            }
+        } catch(e) { alert('生成失败'); }
+    }
+
+    buildChain();
+</script>
+</body>
+</html>
